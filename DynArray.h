@@ -16,6 +16,8 @@ class DynArray
 	DynArray(const DynArray&);
 	DynArray& operator=(const DynArray&);
 
+	DynArray(std::initializer_list<T> ilist);
+
 
     private:
 	void CopyFrom(const DynArray&);
@@ -36,6 +38,12 @@ class DynArray
 	void insertAt(int, T);
 	void removeAt(int);
 
+	T& frontEl();
+        const T& frontEl() const;
+
+        T& backEl();
+        const T& backEl() const;
+
 	int getCapacity() const;
 	int getCurSize() const;
 	bool isEmpty() const;
@@ -51,6 +59,19 @@ template<typename T>
 DynArray<T>::DynArray(int size) :
 	data(new T[size]), curSize(0), capacity(size) {
 	/*...*/
+}
+
+template<typename T>
+DynArray<T>::DynArray(std::initializer_list<T> ilist):
+	DynArray(ilist.size()) {
+
+	// notice that we have called the constructor with "size"
+	// parameter to allocate memory only once, not to resize
+	// each time new element from the initializer list is added
+	size_t i = 0;
+	for (const T& el: ilist)    // for each element from the initializer list
+		data[i++] = el;     // take its value and write it into our array
+	curSize = (i) ? i - 1 : 0; // remember how much elements we have read
 }
 
 template<typename T>
@@ -154,6 +175,70 @@ void DynArray<T>::shrinkToFit()
 	delete[] data;
 	data = newData;
 }
+
+template<typename T>
+void DynArray<T>::insertAt(int position, T element)
+{
+	if (position < 0 || position > capacity)
+	{
+		return;
+	}
+
+	if (capacity == curSize)
+	{
+		int newSize = (capacity == 0 ? 2 : capacity*2);
+		resize(capacity);
+	}
+
+	for (int i = curSize; i >= position ; i--)
+	{
+		data[i] = data[i - 1];
+	}
+    data[position] = element;
+}
+
+template<typename T>
+void DynArray<T>::removeAt(int idx)
+{
+	if (idx < 0 || idx > capacity)
+	{
+		std::cout << "Invalid index";
+	}
+
+	if (idx == curSize - 1 || curSize == 1)
+	{
+		popBack();
+		return;
+	}
+
+	for (int i = idx; i < curSize; i++)
+	{
+		data[i] = data[i+1];
+	}
+	curSize--;
+}
+
+
+template<typename T>
+const T& DynArray<T>::backEl() const {
+	return (*this)[curSize - 1];
+}
+
+template<typename T>
+T& DynArray<T>::backEl() {
+	return (*this)[curSize - 1];
+}
+
+template<typename T>
+T& DynArray<T>::frontEl()  {
+	return (*this)[0];
+}
+
+template<typename T>
+const T& DynArray<T>::frontEl() const {
+	return (*this)[0];
+}
+
 
 
 template<typename T>
