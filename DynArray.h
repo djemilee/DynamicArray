@@ -114,6 +114,49 @@ DynArray<T>& DynArray<T>::operator=(const DynArray<T>& other)
 }
 
 template<typename T>
+void DynArray<T>::pushBack(const T& el)
+{
+    if (curSize == capacity)
+	{
+	    int newSize = (capacity == 0 ? 2 : capacity*2);
+		resize(newSize);
+	}
+	data[curSize] = el;
+	curSize++;
+}
+
+
+template<typename T>
+void DynArray<T>::popBack()
+{
+	if (curSize == 0)
+	{
+		std::cout << "Empty array";
+	}
+	curSize--;
+}
+
+template<typename T>
+void DynArray<T>::shrinkToFit()
+{
+	if (curSize == capacity)
+	{
+		return;
+	}
+
+	capacity = curSize;
+	T* newData = new T[capacity];
+	for (int i = 0; i < capacity; i++)
+	{
+		newData[i] = data[i];
+	}
+
+	delete[] data;
+	data = newData;
+}
+
+
+template<typename T>
 int DynArray<T>::getCapacity() const
 {
     return capacity;
