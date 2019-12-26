@@ -218,6 +218,23 @@ void DynArray<T>::removeAt(int idx)
 	curSize--;
 }
 
+template<typename T>
+const T& DynArray<T>::operator[](int idx) const
+{
+    if (idx >= curSize || idx < 0)
+    {
+        std::cout << "Out of range!!!";
+    }
+    return data[idx];
+}
+
+template<typename T>
+T& DynArray<T>::operator[](int idx)
+{
+    return const_cast<T&>(
+        static_cast<const DynArray&>(*this)[idx]);
+}
+
 
 template<typename T>
 const T& DynArray<T>::backEl() const {
