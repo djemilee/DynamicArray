@@ -19,6 +19,124 @@ class DynArray
 	DynArray(std::initializer_list<T> ilist);
 
 
+
+    public:
+        /* iterator */
+        /// very basic random access iterator
+        /// @note a better implementation will give a const_iterator, too
+        class iterator {
+        private:
+            T* elem_ptr; //!< pointer to a element from the array
+
+        public:
+            typedef iterator                  self_type;
+            typedef T                         value_type;
+            typedef T&                        reference;
+            typedef T*                        pointer;
+            typedef int                       difference_type;
+
+            /** Basic iterator constructor - points to an element from the array */
+            iterator(pointer e = NULL) : elem_ptr(e){}
+
+        public:
+            //@{
+            /** access operators */
+            reference operator*(){
+                return *elem_ptr;
+            }
+            pointer operator->(){
+                return elem_ptr;
+            }
+            reference operator[](size_t i){
+                return  *(elem_ptr + i);
+            }
+            //@}
+
+            //@{
+            /** compare operators */
+            bool operator==(const self_type& rhs) const{
+                return elem_ptr == rhs.elem_ptr;
+            }
+            bool operator!=(const self_type& rhs) const{
+                return !(rhs == *this);
+            }
+            bool operator<(const self_type& rhs) const{
+                return elem_ptr < rhs.elem_ptr;
+            } // compare the addresses
+            bool operator>(const self_type& rhs) const{
+                return (rhs < *this);
+            }
+            bool operator<=(const self_type& rhs) const{
+                return !(*this > rhs);
+            }
+            bool operator>=(const self_type& rhs) const{
+                return !(*this < rhs);
+            }
+            //@}
+
+            //@{
+            /** modifier operators */
+            self_type& operator++() {
+
+                ++elem_ptr;
+                return *this;
+            }
+
+            self_type operator++(int) {
+
+                self_type res(*this);
+                ++(*this);
+                return res;
+            }
+
+            self_type& operator--() {
+
+                --elem_ptr;
+                return *this;
+            }
+
+            self_type operator--(int) {
+
+                self_type res(*this);
+                --(*this);
+                return res;
+            }
+
+            self_type& operator+=(int i) {
+
+                difference_type m = i;
+                if (m >= 0) while (m--) ++elem_ptr; // forward moving
+                else        while (m++) --elem_ptr; // backward moving
+                return *this;
+            }
+
+            self_type operator+(int i) const {
+
+                self_type res(*this);
+                return res += i;
+            }
+
+            self_type& operator-=(int i) {
+
+                return *this+=(-i);
+            }
+
+            self_type operator-(int i) const {
+
+                self_type res(*this);
+                return res -= i;
+            }
+            //@}
+
+            /// calculates difference between two iterators
+            difference_type operator-(const self_type& rhs) const {
+                return elem_ptr - rhs.elem_ptr;
+            }
+        };
+
+
+
+
     private:
 	void CopyFrom(const DynArray&);
 	void resize(int);
