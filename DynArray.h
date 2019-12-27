@@ -165,6 +165,29 @@ class DynArray
 	int getCapacity() const;
 	int getCurSize() const;
 	bool isEmpty() const;
+
+
+	iterator begin(){
+            return iterator(data);
+        }
+
+        /** Get iterator to the end of the array */
+        iterator end(){
+            return iterator(data + curSize);
+        }
+
+        // constant iterator objects. they have limited usage
+        // in our implementation, much better is to create
+        // another class: const_iterator
+        /** Get constant iterator to the beginning of the array */
+        const iterator cbegin() const {
+            return iterator(data);
+        }
+
+        /** Get constant iterator to the end of the array */
+        const iterator cend() const {
+            return iterator(data + curSize);
+        }
 };
 
 
