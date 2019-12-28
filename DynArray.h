@@ -11,13 +11,13 @@ class DynArray
 	T* data;
 
     public:
-		DynArray();
-		DynArray(int size);
-		~DynArray();
-		DynArray(const DynArray&);
-		DynArray& operator=(const DynArray&);
+	DynArray();
+	DynArray(int size);
+	~DynArray();
+	DynArray(const DynArray&);
+	DynArray& operator=(const DynArray&);
 
-		DynArray(std::initializer_list<T> ilist);
+	DynArray(std::initializer_list<T> ilist);
 
 
 ///******************************************************************************************************
@@ -193,25 +193,25 @@ class DynArray
         };
 ///***********************************************************************************************
 
-	private:
-		void copy_from(const DynArray&);
-		void resize(int);
+    private:
+	void copy_from(const DynArray&);
+	void resize(int);
         void clean();
 
-		iterator binary_search(const T& el, int left, int right) const;
+	iterator binary_search(const T& el, int left, int right) const;
         iterator linear_search(const T& el) const;
 
-	public:
-	    const T& operator[](int) const;
-	    T& operator[](int);
+    public:
+	const T& operator[](int) const;
+	T& operator[](int);
 
-		void push_back(const T&);
-		void pop_back();
+	void push_back(const T&);
+	void pop_back();
 
-		void shrink_to_fit();
+	void shrink_to_fit();
 
-		void insert_at(int, T);
-		void remove_at(int);
+	void insert_at(int, T);
+	void remove_at(int);
 
         T& front();
         const T& front() const;
@@ -219,9 +219,9 @@ class DynArray
         T& back();
         const T& back() const;
 
-		int get_capacity() const;
-		int get_cur_size() const;
-		bool empty() const;
+	int get_capacity() const;
+	int get_cur_size() const;
+	bool empty() const;
 
         void print_elems(std::ostream& os) const;
 
