@@ -19,6 +19,7 @@ class DynArray
 	DynArray(std::initializer_list<T> ilist);
 
 
+///*******************************************************************************************************************
 
     public:
         /* iterator */
@@ -134,12 +135,74 @@ class DynArray
             }
         };
 
+///*********************************************************************************************
+
+    public:
+        /* iterator */
+        /// very basic forward iterator
+        /// @note a better implementation will give a const_iterator, too
+        class forward_iterator {
+        private:
+            T* elem_ptr; //!< pointer to a element from the array
+
+        public:
+            typedef forward_iterator          self_type;
+            typedef T                         value_type;
+            typedef T&                        reference;
+            typedef T*                        pointer;
+            typedef int                       difference_type;
+
+            /** Basic iterator constructor - points to an element from the array */
+            forward_iterator(pointer e = NULL) : elem_ptr(e){}
+
+        public:
+            //@{
+            /** access operators */
+            reference operator*(){
+                return *elem_ptr;
+            }
+            pointer operator->(){
+                return elem_ptr;
+            }
+            //@}
+
+            //@{
+            /** compare operators */
+            bool operator==(const self_type& rhs) const{
+                return elem_ptr == rhs.elem_ptr;
+            }
+            bool operator!=(const self_type& rhs) const{
+                return !(rhs == *this);
+            }
+            //@}
+
+            //@{
+            /** modifier operators */
+            self_type& operator++() {
+
+                ++elem_ptr;
+                return *this;
+            }
+
+            self_type operator++(int) {
+
+                self_type res(*this);
+                ++(*this);
+                return res;
+            }
+        };
+///***********************************************************************************************
+
 
 
 
     private:
 	void CopyFrom(const DynArray&);
 	void resize(int);
+
+
+	iterator binary_search(const T& el, int left, int right) const;
+        iterator linear_search(const T& el) const;
 
     public:
         void clean();
@@ -166,6 +229,10 @@ class DynArray
 	int getCurSize() const;
 	bool isEmpty() const;
 
+ 	iterator find(const T& el, bool is_sorted = false) const;
+
+
+
 
 	iterator begin(){
             return iterator(data);
@@ -187,6 +254,27 @@ class DynArray
         /** Get constant iterator to the end of the array */
         const iterator cend() const {
             return iterator(data + curSize);
+        }
+
+
+
+	forward_iterator fbegin(){
+            return forward_iterator(data);
+        }
+
+        /** Get iterator to the end of the array */
+        forward_iterator fend(){
+            return forward_iterator(data + curSize);
+        }
+
+        /** Get constant iterator to the beginning of the array */
+        const forward_iterator cfbegin() const {
+            return forward_iterator(data);
+        }
+
+        /** Get constant iterator to the end of the array */
+        const forward_iterator cfend() const {
+            return forward_iterator(data + curSize);
         }
 };
 
@@ -216,32 +304,29 @@ DynArray<T>::DynArray(std::initializer_list<T> ilist):
 }
 
 template<typename T>
-DynArray<T>::~DynArray()
-{
+DynArray<T>::~DynArray(){
 	clean();
 }
 
 template <typename T>
-void DynArray<T>::CopyFrom(const DynArray & other)
-{
+void DynArray<T>::CopyFrom(const DynArray & other){
 	capacity = other.capacity;
 	curSize = other.curSize;
 	data = new T[capacity];
-	for(int i = 0; i < capacity; i++)
-	{
+	for(int i = 0; i < capacity; i++){
 		data[i] = other.data[i];
 	}
 }
 
 template<typename T>
-void DynArray<T>::resize(int newCap)
-{
+void DynArray<T>::resize(int newCap){
     T *temp = data;
 
 	data = new T[newCap];
 
-	for (int i = 0; i < curSize; i++)
+	for (int i = 0; i < curSize; i++){
 		data[i] = temp[i];
+	}
 
 	capacity = newCap;
 
@@ -249,8 +334,7 @@ void DynArray<T>::resize(int newCap)
 }
 
 template <typename T>
-void DynArray<T>::clean()
-{
+void DynArray<T>::clean(){
     delete[] data;
 
     capacity = 0;
@@ -259,28 +343,23 @@ void DynArray<T>::clean()
 }
 
 template<typename T>
-DynArray<T>::DynArray(const DynArray& other)
-{
+DynArray<T>::DynArray(const DynArray& other){
 	CopyFrom(other);
 }
 
 template<typename T>
-DynArray<T>& DynArray<T>::operator=(const DynArray<T>& other)
-{
-	if (this != &other)
-	{
-        clean();
-        CopyFrom(other);
-    }
+DynArray<T>& DynArray<T>::operator=(const DynArray<T>& other){
+	if (this != &other){
+        	clean();
+        	CopyFrom(other);
+    	}
 	return *this;
 }
 
 template<typename T>
-void DynArray<T>::pushBack(const T& el)
-{
-    if (curSize == capacity)
-	{
-	    int newSize = (capacity == 0 ? 2 : capacity*2);
+void DynArray<T>::pushBack(const T& el){
+    	if (curSize == capacity){
+	    	int newSize = (capacity == 0 ? 2 : capacity*2);
 		resize(newSize);
 	}
 	data[curSize] = el;
@@ -289,27 +368,22 @@ void DynArray<T>::pushBack(const T& el)
 
 
 template<typename T>
-void DynArray<T>::popBack()
-{
-	if (curSize == 0)
-	{
+void DynArray<T>::popBack(){
+	if (curSize == 0){
 		std::cout << "Empty array";
 	}
 	curSize--;
 }
 
 template<typename T>
-void DynArray<T>::shrinkToFit()
-{
-	if (curSize == capacity)
-	{
+void DynArray<T>::shrinkToFit(){
+	if (curSize == capacity){
 		return;
 	}
 
 	capacity = curSize;
 	T* newData = new T[capacity];
-	for (int i = 0; i < capacity; i++)
-	{
+	for (int i = 0; i < capacity; i++){
 		newData[i] = data[i];
 	}
 
@@ -318,60 +392,49 @@ void DynArray<T>::shrinkToFit()
 }
 
 template<typename T>
-void DynArray<T>::insertAt(int position, T element)
-{
-	if (position < 0 || position > capacity)
-	{
+void DynArray<T>::insertAt(int position, T element){
+	if (position < 0 || position > capacity){
 		return;
 	}
 
-	if (capacity == curSize)
-	{
+	if (capacity == curSize){
 		int newSize = (capacity == 0 ? 2 : capacity*2);
 		resize(capacity);
 	}
 
-	for (int i = curSize; i >= position ; i--)
-	{
+	for (int i = curSize; i >= position ; i--){
 		data[i] = data[i - 1];
 	}
     data[position] = element;
 }
 
 template<typename T>
-void DynArray<T>::removeAt(int idx)
-{
-	if (idx < 0 || idx > capacity)
-	{
+void DynArray<T>::removeAt(int idx){
+	if (idx < 0 || idx > capacity){
 		std::cout << "Invalid index";
 	}
 
-	if (idx == curSize - 1 || curSize == 1)
-	{
+	if (idx == curSize - 1 || curSize == 1){
 		popBack();
 		return;
 	}
 
-	for (int i = idx; i < curSize; i++)
-	{
+	for (int i = idx; i < curSize; i++){
 		data[i] = data[i+1];
 	}
 	curSize--;
 }
 
 template<typename T>
-const T& DynArray<T>::operator[](int idx) const
-{
-    if (idx >= curSize || idx < 0)
-    {
+const T& DynArray<T>::operator[](int idx) const{
+    if (idx >= curSize || idx < 0){
         std::cout << "Out of range!!!";
     }
     return data[idx];
 }
 
 template<typename T>
-T& DynArray<T>::operator[](int idx)
-{
+T& DynArray<T>::operator[](int idx){
     return const_cast<T&>(
         static_cast<const DynArray&>(*this)[idx]);
 }
@@ -400,21 +463,64 @@ const T& DynArray<T>::frontEl() const {
 
 
 template<typename T>
-int DynArray<T>::getCapacity() const
-{
+int DynArray<T>::getCapacity() const{
     return capacity;
 }
 
 template<typename T>
-int DynArray<T>::getCurSize() const
-{
+int DynArray<T>::getCurSize() const{
     return curSize;
 }
 
 template<typename T>
-bool DynArray<T>::isEmpty() const
-{
+bool DynArray<T>::isEmpty() const{
     return curSize == 0;
+}
+
+template<typename T>
+typename DynArray<T>::iterator DynArray<T>::
+	binary_search(const T& el, int left, int right) const {
+	// there is no such element
+	if (left > right){
+		return cend();
+	}
+
+	int med = (left + right) / 2;
+
+	if (data[med] == el){
+		return iterator(data + med);
+	}
+
+	if (data[med] > el){
+		return binary_search(el, left, med - 1);
+	}
+
+	if (data[med] < el){
+		return binary_search(el, med + 1, right);
+	}	
+	// won't reach this line, but added just to stop compiler's complaining
+	return cend();
+}
+
+template<typename T>
+typename DynArray<T>::iterator DynArray<T>::
+	linear_search(const T& el) const {
+
+	for (size_t i = 0; i < curSize; i++){
+		if (data[i] == el){
+			return iterator(data + i);
+		}
+	}
+	return cend();
+}
+
+template<typename T>
+typename DynArray<T>::iterator DynArray<T>::find(const T& el, bool isSorted) const {
+
+	if (isSorted){
+		return binary_search(el, 0, curSize); // O(logN)
+	}
+	return linear_search(el); // O(N)
 }
 
 
