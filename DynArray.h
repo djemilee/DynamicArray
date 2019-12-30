@@ -19,7 +19,6 @@ class DynArray
 
 	DynArray(std::initializer_list<T> ilist);
 
-
 ///******************************************************************************************************
     public:
         /* iterator */
@@ -193,7 +192,7 @@ class DynArray
         };
 ///***********************************************************************************************
 
-    private:
+     private:
 	void copy_from(const DynArray&);
 	void resize(int);
         void clean();
@@ -201,7 +200,8 @@ class DynArray
 	iterator binary_search(const T& el, int left, int right) const;
         iterator linear_search(const T& el) const;
 
-    public:
+
+     public:
 	const T& operator[](int) const;
 	T& operator[](int);
 
@@ -224,6 +224,7 @@ class DynArray
 	bool empty() const;
 
         void print_elems(std::ostream& os) const;
+        void print_info(std::ostream& os) const;
 
 
         iterator find(const T& el, bool is_sorted = false) const;
@@ -288,7 +289,7 @@ DynArray<T>::DynArray(std::initializer_list<T> ilist):
 	for (const T& el: ilist){    // for each element from the initializer list
 		data[i++] = el;         // take its value and write it into our array
     }
-	cur_size = (i) ? i - 1 : 0; // remember how much elements we have read
+	cur_size = (i) ? i : 0; // remember how much elements we have read
 }
 
 template<typename T>
@@ -374,6 +375,7 @@ void DynArray<T>::shrink_to_fit(){
 template<typename T>
 void DynArray<T>::insert_at(int position, T element){
 	if (position < 0 || position > capacity){
+        throw std::out_of_range("Out of range!!!");
 		return;
 	}
 
@@ -386,12 +388,14 @@ void DynArray<T>::insert_at(int position, T element){
 		data[i] = data[i - 1];
 	}
     data[position] = element;
+    cur_size++;
 }
 
 template<typename T>
 void DynArray<T>::remove_at(int idx){
 	if (idx < 0 || idx > capacity){
 		throw std::out_of_range("Out of range!!!");
+		return;
 	}
 
 	if (idx == cur_size - 1 || cur_size == 1){
@@ -527,9 +531,22 @@ void DynArray<T>::print_elems(std::ostream& os) const {
 	}
 
 	os << "{ ";
-	for (size_t i = 0; i < cur_size - 1; i++)
+	for (size_t i = 0; i < cur_size - 1; i++){
 		os << data[i] << ", ";
+	}
 	os << data[cur_size - 1] << " }" << std::endl;
+}
+
+
+
+template<typename T>
+inline
+void DynArray<T>::print_info(std::ostream& os) const {
+
+	os  << "obj at : Ox" << this
+		<< " buffer starts at : Ox" << data
+		<< " length : " << cur_size
+		<< " capacity : " << capacity << std::endl;
 }
 
 #endif // DYNARRAY_H_INCLUDED
